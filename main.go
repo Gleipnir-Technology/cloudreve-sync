@@ -9,14 +9,14 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 0 {
+	if len(os.Args) < 2 {
 		fmt.Println("Please specify the root URL")
 		os.Exit(1)
 	}
-	url := os.Args[0]
-	fmt.Println("Attempting...")
+	url := os.Args[1]
+	fmt.Println("Attempting login at:", url)
 	//resp, err := http.Get(URL + "/session/prepare")
-	resp, err := http.Get(url + "/site/ping")
+	resp, err := http.Get(url + "/api/v4/site/ping")
 	if err != nil {
 		log.Fatal(err)
 	}
