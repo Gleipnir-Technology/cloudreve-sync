@@ -81,6 +81,33 @@ func (client *CloudreveClient) GetWithBody(path string, payload map[string]inter
 	return nil
 }
 
+func (client *CloudreveClient) Post(path string, payload map[string]interface{}) error {
+	u := client.base.JoinPath("/api/v4", path)
+	p, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	body := bytes.NewBuffer(p)
+	req, err := http.NewRequest(http.MethodPost, u.String(), body)
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Content-Type", "application/json")
+
+	res, err := client.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(respBody))
+	return nil
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Please specify the root URL")
@@ -97,11 +124,18 @@ func main() {
 	}
 	email := os.Args[2]
 
+	if len(os.Args) < 4 {
+		fmt.Println("Please specify a password")
+		os.Exit(1)
+	}
+	password := os.Args[3]
 	client := NewCloudreveClient(urlBase)
 	fmt.Println("Attempting login at:", urlBase)
-	url := client.UrlWithQuery("/session/prepare", map[string]string{"email": email})
+	/*url := client.UrlWithQuery("/session/prepare", map[string]string{"email": email})
 	err = client.Get(url)
 	if err != nil {
 		log.Fatal("Failed to prepare session", err)
-	}
+	}*/
+	body := map[string]interface{}{"email": email, "password": password}
+	err = client.Post("/session/token", body)
 }
