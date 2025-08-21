@@ -1,7 +1,32 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+)
 
 func main() {
-	fmt.Println("Hello, world")
+	if len(os.Args) < 0 {
+		fmt.Println("Please specify the root URL")
+		os.Exit(1)
+	}
+	url := os.Args[0]
+	fmt.Println("Attempting...")
+	//resp, err := http.Get(URL + "/session/prepare")
+	resp, err := http.Get(url + "/site/ping")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Status:", resp.Status)
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(string(body))
 }
